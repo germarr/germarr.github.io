@@ -1,0 +1,120 @@
+I"@#<p>Spotify is probably the biggest music streaming platform in the world. One of the coolest things about it, is that it offers a robust API ecosystem that gives access to a lot of interesting data.</p>
+
+<p>After learning some of the key concepts about this API, I decided to do a data analysis project using it. The main focus of this project was to analyze the music profiles from different countries and predict in which of this regions a new song could be succesful.</p>
+
+<p>To accomplish this, I created a dataframe with all the songs that were associated with some of the most popular playlists per country. Once I got those songs I used the <a href="https://developer.spotify.com/documentation/web-api/reference/#endpoint-get-several-audio-features"><strong>Spotify Audio Features</strong></a> function on each song and, as the last step, I used a Machine Learning model using those song features as my predictors.</p>
+
+<p>I want to use this post to explain how I did this project and share some insights about the data that I saw.</p>
+
+<p>You can visit my <a href="https://github.com/germarr/spotify-trends-analysis"><strong>Github</strong></a> repo to check and download the code that I’m going to explain below.</p>
+
+<h2 id="1-getting-the-data">1. Getting the data</h2>
+<hr />
+<p>All this project was created using Python in a Jupyter Notebook. Here are the basic libraries that I imported to the notebook.</p>
+
+<p><img src="/img/posts/spotify_analysis/1.png" alt="" /></p>
+
+<h3 id="11-the-spotify-api">1.1 The Spotify API</h3>
+<hr />
+<p>To kick off this project I read the <a href="https://developer.spotify.com/documentation/web-api/quick-start/"><strong>Quick Start Guide</strong></a> that Spotify offers. That article is great because it explains how their API works and the different pieces you need to understand before being able to use it.</p>
+
+<p>Spotify offers several flavors of their API. For this project, I used the <a href="https://developer.spotify.com/documentation/web-api/quick-start"><strong>Web API</strong></a>. One of the things that the Spotify API offers, when you choose this particular API, is the possibility of testing different methods on a console.</p>
+
+<p>Basically to start you need to create a new app inside their developer platform. Access to this platform is through the use of a simple Spotify Account. You can click <a href="https://developer.spotify.com/dashboard/login"><strong>here</strong></a> for a direct link.</p>
+
+<p>Once the app is created you can get a <code class="language-plaintext highlighter-rouge">Client_ID</code> and a <code class="language-plaintext highlighter-rouge">Client_Secret</code>. The combination of these two strings creates an <code class="language-plaintext highlighter-rouge">access_token</code> which is necessary to use the API from the Jupyter Notebook.</p>
+
+<p><ins><strong>Notes:</strong></ins></p>
+<ul>
+  <li>
+    <p>To navigate the Spotify API one key aspect that you need to always keep in mind is that everything works with “Spotify Unique ids”. Each song, album, artists, show, playlist, episode, etc. has a unique id.</p>
+  </li>
+  <li>
+    <p>For this project first I collected the individual ids of some playlists. The I collected the ids of the tracks that composed that playlist and finally, based on the ids of those tracks, I got their features.</p>
+  </li>
+</ul>
+
+<h3 id="12-helper-functions">1.2 Helper Functions</h3>
+<hr />
+<p>For this project I created a series of Python “helper functions”. The purpose of these functions was to interact in a more efficient way with the Spotify API.</p>
+
+<p>Here’s how I imported those functions:</p>
+
+<p><img src="/img/posts/spotify_analysis/2.png" alt="" /></p>
+
+<p>And here’s a brief description of the functions:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">auth()</code>: This functions generates the <code class="language-plaintext highlighter-rouge">access_token</code> by requesting the <code class="language-plaintext highlighter-rouge">Client_ID</code> and the <code class="language-plaintext highlighter-rouge">Client_Secret</code>. This token is important because it’s the key to use all the functionalities of the API.</li>
+  <li><code class="language-plaintext highlighter-rouge">playlist_data()</code>: This function returns a dataframe with key data about a particular playlist.</li>
+  <li><code class="language-plaintext highlighter-rouge">song_features()</code>: This function returns a dataframe with the features that Spotify assigns to each song.</li>
+  <li><code class="language-plaintext highlighter-rouge">top_playlists()</code> :This function accepts a python list of countries as parameters and returns a dataframe with the top playlists from those countries.</li>
+  <li><code class="language-plaintext highlighter-rouge">get_songs_from_recommended_playlists()</code>: This function accepts a python list with “playlists ids” and returns a dataframe with the main information about those playlists.</li>
+</ul>
+
+<h3 id="13-creating-dataframes">1.3 Creating dataframes</h3>
+<hr />
+<p>Now we have the neccesary functions to start creating our dataframes. As mentioned at the beggining of this notebook, we want to get a sample of songs from different countries and analyze the charactersitics of those songs. Creating this dataframe is going to be a 3 step process:</p>
+<ol>
+  <li>Get 10 playlists from each country. This will create a robust sample dataframe.</li>
+  <li>Get all the songs from those playlists and create a dataframe with them.</li>
+  <li>Once we have the dataframe with all of our songs, we add the features to them.</li>
+</ol>
+
+<h4 id="131-creating-our-access-token">1.3.1 Creating our <code class="language-plaintext highlighter-rouge">Access Token</code></h4>
+<hr />
+<p>To create and handle the “Access Token” I created a function called <code class="language-plaintext highlighter-rouge">auth()</code>. When called, the function will ask for a <code class="language-plaintext highlighter-rouge">Client_ID</code> and a <code class="language-plaintext highlighter-rouge">Client_Secret</code>. You can learn how to get those access in this <a href="https://developer.spotify.com/documentation/general/guides/app-settings/"><strong>article</strong></a>.</p>
+
+<p>Here’s and example of how I called the function:
+<img src="/img/posts/spotify_analysis/3.png" alt="" /></p>
+
+<p><ins><strong>Notes:</strong></ins></p>
+<ul>
+  <li><a href="https://developer.spotify.com/documentation/general/guides/authorization-guide/#client-credentials-flow"><strong>Here</strong></a> you can find the article in which Spotify explains how the <code class="language-plaintext highlighter-rouge">access token</code> works. In addition, it also mentions different workflows that can be followed in order to get the token.</li>
+</ul>
+
+<h4 id="132-getting-the-playlists">1.3.2 Getting the playlists</h4>
+<hr />
+<p>Spotify has an API call that gathers the top playlists per country. There’s a function inside our <code class="language-plaintext highlighter-rouge">hf</code> library called <code class="language-plaintext highlighter-rouge">top_playlists()</code> which accepts a list of countries as parameters and returns a dataframe with the top playlists from those countries.</p>
+
+<p>Here’s an example of how I called the function:
+<img src="/img/posts/spotify_analysis/4.png" alt="" /></p>
+
+<p><br />
+And here’s an example of the returned dataframe:
+<img src="/img/posts/spotify_analysis/table1.png" alt="" /></p>
+
+<p><br /></p>
+<h4 id="133-getting-the-songs-from-each-playlist">1.3.3 Getting the songs from each playlist</h4>
+<hr />
+<p>Now that we have our top playlists per country, we can get the songs that are inside that playlist. We can call the <code class="language-plaintext highlighter-rouge">get_songs_from_recommended_playlists()</code> to return the songs in a dataframe.</p>
+
+<p>Here’s an example of how I called the function:
+<img src="/img/posts/spotify_analysis/6.png" alt="" /></p>
+
+<p>And here’s an example of the returned dataframe:
+<img src="/img/posts/spotify_analysis/table2.png" alt="" /></p>
+
+<h4 id="134-adding-features-to-each-song">1.3.4 Adding features to each song.</h4>
+<hr />
+<p>Now that we have all the songs from each playlist, we can use the <code class="language-plaintext highlighter-rouge">song_features()</code> function to add their features.</p>
+
+<p>Here’s how I call the function:</p>
+
+<p><img src="/img/posts/spotify_analysis/7.png" alt="" /></p>
+
+<p>And here’s an example of the returned dataframe:
+<img src="/img/posts/spotify_analysis/table3.png" alt="" /></p>
+
+<h4 id="135-final-step">1.3.5 Final Step</h4>
+<p>As a las step I merged the song features with my playlists information.
+Here’s how I did the merge:
+<img src="/img/posts/spotify_analysis/8.png" alt="" /></p>
+
+<p>And here’s an example of the returned dataframe:
+<img src="/img/posts/spotify_analysis/table5.png" alt="" /></p>
+
+<h2 id="2-analyzing-the-data">2. Analyzing the data</h2>
+<hr />
+
+:ET

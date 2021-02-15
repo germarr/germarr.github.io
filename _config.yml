@@ -6,11 +6,11 @@ baseurl:            ""
 url:                "https://germarr.github.io"
 
 # Social Profiles
-twitter_username:   
-github_username:    
+twitter_username: jerrypod   
+github_username:  germarr
 facebook_username:  
-instagram_username:  
-linkedin_username:
+instagram_username:  jerrypod1
+linkedin_username: martinezarroyogerardo
 
 # Add your google-analytics ID here to activate google analytics
 google_analytics:   UA-XXXXXXXXX-X # out your google-analytics code
