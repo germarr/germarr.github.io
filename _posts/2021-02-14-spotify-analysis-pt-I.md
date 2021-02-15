@@ -78,11 +78,13 @@ Spotify has an API call that gathers the top playlists per country. There's a fu
 Here's an example of how I called the function:
 ![](/img/posts/spotify_analysis/4.png)
 
-<br>
+
 And here's an example of the returned dataframe:
-![](/img/posts/spotify_analysis/table1.png)
+
+![](/img/posts/spotify_analysis/table1.PNG)
 
 <br>
+
 #### 1.3.3 Getting the songs from each playlist
 ---
 Now that we have our top playlists per country, we can get the songs that are inside that playlist. We can call the `get_songs_from_recommended_playlists()` to return the songs in a dataframe.
@@ -91,7 +93,9 @@ Here's an example of how I called the function:
 ![](/img/posts/spotify_analysis/6.png)
 
 And here's an example of the returned dataframe:
-![](/img/posts/spotify_analysis/table2.png)
+![](/img/posts/spotify_analysis/table2.PNG)
+
+<br>
 
 #### 1.3.4 Adding features to each song.
 ---
@@ -103,16 +107,18 @@ Here's how I call the function:
 
 
 And here's an example of the returned dataframe:
-![](/img/posts/spotify_analysis/table3.png)
+
+![](/img/posts/spotify_analysis/table3.PNG)
 
 
 #### 1.3.5 Merging the dataframes.
 As a las step I merged the song features with my playlists information.
+
 Here's how I did the merge:
 ![](/img/posts/spotify_analysis/8.png)
 
 And here's an example of the returned dataframe:
-![](/img/posts/spotify_analysis/table5.png)
+![](/img/posts/spotify_analysis/table5.PNG)
 
 ### Next Steps
 This was the first part of the project. Now that the dataframe is finished, we can proceed to do all the data analysis.
